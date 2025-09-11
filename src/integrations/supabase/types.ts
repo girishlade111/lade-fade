@@ -14,13 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      files: {
+        Row: {
+          burn_after_download: boolean | null
+          created_at: string
+          download_count: number | null
+          expires_at: string
+          file_size: number
+          filename: string
+          id: string
+          is_deleted: boolean | null
+          max_downloads: number | null
+          mime_type: string
+          original_filename: string
+          password_hash: string | null
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          burn_after_download?: boolean | null
+          created_at?: string
+          download_count?: number | null
+          expires_at: string
+          file_size: number
+          filename: string
+          id?: string
+          is_deleted?: boolean | null
+          max_downloads?: number | null
+          mime_type: string
+          original_filename: string
+          password_hash?: string | null
+          storage_path: string
+          user_id: string
+        }
+        Update: {
+          burn_after_download?: boolean | null
+          created_at?: string
+          download_count?: number | null
+          expires_at?: string
+          file_size?: number
+          filename?: string
+          id?: string
+          is_deleted?: boolean | null
+          max_downloads?: number | null
+          mime_type?: string
+          original_filename?: string
+          password_hash?: string | null
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      shares: {
+        Row: {
+          access_count: number | null
+          accessed_at: string | null
+          created_at: string
+          expires_at: string
+          file_id: string
+          id: string
+          is_active: boolean | null
+          share_token: string
+        }
+        Insert: {
+          access_count?: number | null
+          accessed_at?: string | null
+          created_at?: string
+          expires_at: string
+          file_id: string
+          id?: string
+          is_active?: boolean | null
+          share_token: string
+        }
+        Update: {
+          access_count?: number | null
+          accessed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          file_id?: string
+          id?: string
+          is_active?: boolean | null
+          share_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shares_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_expired_files: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      generate_share_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

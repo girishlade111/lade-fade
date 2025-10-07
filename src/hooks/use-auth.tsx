@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getBaseUrl } from '@/lib/url-config';
 
 interface AuthContextType {
   user: User | null;
@@ -53,7 +54,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const signUp = async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${getBaseUrl()}/`;
+    console.log('Auth - Redirect URL:', redirectUrl);
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -74,12 +76,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (!error) {
+      // Check if email is confirmed
+      if (data.user && !data.user.email_confirmed_at) {
+        toast({
+          variant: "destructive",
+          title: "Email not confirmed",
+          description: "Please check your email and confirm your account before signing in.",
+        });
+        return { error: { message: "Email not confirmed" } };
+      }
+      
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in.",

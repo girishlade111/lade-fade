@@ -19,6 +19,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { generateShareUrl } from '@/lib/url-config';
 
 interface FileRecord {
   id: string;
@@ -56,6 +57,7 @@ export const Dashboard = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('Loaded files with shares:', data);
       setFiles(data || []);
     } catch (error) {
       toast({
@@ -73,7 +75,7 @@ export const Dashboard = () => {
   }, []);
 
   const copyShareLink = async (shareToken: string) => {
-    const shareUrl = `${window.location.origin}/share/${shareToken}`;
+    const shareUrl = generateShareUrl(shareToken);
     await navigator.clipboard.writeText(shareUrl);
     toast({
       title: "Link copied!",

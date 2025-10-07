@@ -45,6 +45,22 @@ export const SharePage = () => {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [timeLeft, setTimeLeft] = useState<string>('');
 
+  // Check if URL needs to be corrected (port mismatch)
+  useEffect(() => {
+    const currentPort = window.location.port;
+    const currentOrigin = window.location.origin;
+    console.log('SharePage - Current port:', currentPort, 'Origin:', currentOrigin);
+    
+    // If someone accessed this page with wrong port (e.g., 8080 instead of 8081),
+    // redirect them to the correct port
+    if (currentPort === '8080' && window.location.hostname === 'localhost') {
+      const correctUrl = window.location.href.replace(':8080', ':8081');
+      console.log('Redirecting from wrong port to:', correctUrl);
+      window.location.replace(correctUrl);
+      return;
+    }
+  }, []);
+
   useEffect(() => {
     if (token) {
       loadFileData();
@@ -69,8 +85,15 @@ export const SharePage = () => {
   }, [fileData]);
 
   const loadFileData = async () => {
+    console.log('=== SHARE PAGE DEBUG ===');
+    console.log('Share token from URL:', token);
+    console.log('Current window.location:', window.location.href);
+    console.log('Current origin:', window.location.origin);
+    console.log('=======================');
+    
     try {
       // First, get the share record
+      console.log('Querying shares table for token:', token);
       const { data: shareData, error: shareError } = await supabase
         .from('shares')
         .select(`
@@ -81,7 +104,10 @@ export const SharePage = () => {
         .eq('is_active', true)
         .single();
 
+      console.log('Share query result:', { shareData, shareError });
+
       if (shareError || !shareData) {
+        console.log('No share data found or error occurred');
         setError('Invalid or expired share link.');
         return;
       }

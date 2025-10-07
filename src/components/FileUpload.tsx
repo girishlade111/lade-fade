@@ -20,6 +20,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { generateShareUrl } from '@/lib/url-config';
 
 interface FileUploadProps {
   onSuccess: () => void;
@@ -38,6 +39,13 @@ export const FileUpload = ({ onSuccess, onCancel }: FileUploadProps) => {
   const [burnAfterDownload, setBurnAfterDownload] = useState(false);
   const [shareLink, setShareLink] = useState('');
   const [uploadComplete, setUploadComplete] = useState(false);
+  
+  // Fallback function to generate share token client-side
+  const generateFallbackToken = () => {
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  };
   
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -70,6 +78,15 @@ export const FileUpload = ({ onSuccess, onCancel }: FileUploadProps) => {
 
     setUploading(true);
     setProgress(0);
+    
+    // Debug current URL info
+    console.log('=== URL DEBUG INFO ===');
+    console.log('window.location.href:', window.location.href);
+    console.log('window.location.origin:', window.location.origin);
+    console.log('window.location.hostname:', window.location.hostname);
+    console.log('window.location.port:', window.location.port);
+    console.log('window.location.protocol:', window.location.protocol);
+    console.log('=====================');
 
     try {
       // Create file path
@@ -77,15 +94,21 @@ export const FileUpload = ({ onSuccess, onCancel }: FileUploadProps) => {
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
       // Upload to storage
+      console.log('Uploading file to storage...');
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('uploads')
         .upload(fileName, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        throw new Error(`Failed to upload file: ${uploadError.message}`);
+      }
 
-      setProgress(75);
+      console.log('File uploaded successfully:', uploadData);
+      setProgress(50);
 
       // Create file record
+      console.log('Creating file record...');
       const expiresAt = getExpiryDate(expiryTime);
       const { data: fileData, error: fileError } = await supabase
         .from('files')
@@ -103,19 +126,63 @@ export const FileUpload = ({ onSuccess, onCancel }: FileUploadProps) => {
         .select()
         .single();
 
-      if (fileError) throw fileError;
+      if (fileError) {
+        console.error('File record creation error:', fileError);
+        throw new Error(`Failed to create file record: ${fileError.message}`);
+      }
 
-      setProgress(85);
+      console.log('File record created successfully:', fileData);
+      setProgress(75);
 
       // Generate share token
+      console.log('Generating share token...');
       const { data: tokenData, error: tokenError } = await supabase
         .rpc('generate_share_token');
 
-      if (tokenError) throw tokenError;
+      if (tokenError) {
+        console.error('Token generation error:', tokenError);
+        // Fallback: generate a secure random token client-side
+        const fallbackToken = generateFallbackToken();
+        console.log('Using fallback token:', fallbackToken);
+        
+        // Create share record with fallback token
+        const { error: shareError } = await supabase
+          .from('shares')
+          .insert({
+            file_id: fileData.id,
+            share_token: fallbackToken,
+            expires_at: expiresAt.toISOString(),
+          });
 
+        if (shareError) {
+          console.error('Share creation error with fallback token:', shareError);
+          throw new Error(`Failed to create share record: ${shareError.message}`);
+        }
+
+        console.log('Share record created successfully with fallback token');
+        setProgress(100);
+
+        // Generate share link using utility function
+        const shareUrl = generateShareUrl(fallbackToken);
+        setShareLink(shareUrl);
+        setUploadComplete(true);
+        
+        toast({
+          title: "Upload successful!",
+          description: "Your file has been uploaded and share link generated.",
+        });
+        return;
+      }
+
+      if (!tokenData) {
+        throw new Error('No token received from generate_share_token function');
+      }
+
+      console.log('Token generated successfully:', tokenData);
       setProgress(95);
 
       // Create share record
+      console.log('Creating share record with token:', tokenData);
       const { error: shareError } = await supabase
         .from('shares')
         .insert({
@@ -124,12 +191,17 @@ export const FileUpload = ({ onSuccess, onCancel }: FileUploadProps) => {
           expires_at: expiresAt.toISOString(),
         });
 
-      if (shareError) throw shareError;
+      if (shareError) {
+        console.error('Share creation error:', shareError);
+        throw new Error(`Failed to create share record: ${shareError.message}`);
+      }
+
+      console.log('Share record created successfully');
 
       setProgress(100);
 
-      // Generate share link
-      const shareUrl = `${window.location.origin}/share/${tokenData}`;
+      // Generate share link using utility function
+      const shareUrl = generateShareUrl(tokenData);
       setShareLink(shareUrl);
       setUploadComplete(true);
 
@@ -139,10 +211,11 @@ export const FileUpload = ({ onSuccess, onCancel }: FileUploadProps) => {
       });
 
     } catch (error: any) {
+      console.error('Upload error details:', error);
       toast({
         variant: "destructive",
         title: "Upload failed",
-        description: error.message || "An error occurred during upload.",
+        description: error.message || "An error occurred during upload. Please check console for details.",
       });
     } finally {
       setUploading(false);
@@ -216,12 +289,16 @@ export const FileUpload = ({ onSuccess, onCancel }: FileUploadProps) => {
                   value={shareLink} 
                   readOnly 
                   className="bg-background font-mono text-sm"
+                  title={`Generated URL: ${shareLink}`}
                 />
                 <Button onClick={copyShareLink} variant="outline" className="gap-2">
                   <Copy className="w-4 h-4" />
                   Copy
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Base URL: {shareLink.split('/share/')[0]}
+              </p>
             </div>
 
             <div className="flex gap-3">

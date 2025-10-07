@@ -1,73 +1,90 @@
-# Welcome to your Lovable project
+# Lade Transfer - Secure File Sharing Platform
 
-## Project info
+Lade Transfer is a secure, privacy-focused file sharing application that allows users to upload files and generate time-limited shareable links. Files automatically expire and delete after a specified time period, ensuring no traces are left behind.
 
-**URL**: https://lovable.dev/projects/3b15985c-2a4e-497b-a4fa-662683afd4c9
+## Features
 
-## How can I edit this code?
+- 🔒 **Privacy First**: End-to-end secure file sharing with automatic deletion
+- ⏰ **Time Limited**: Set custom expiry times (10 minutes to 24 hours)
+- 🗑️ **Auto-Delete**: Files automatically vanish after expiry - no traces left
+- 🔐 **Password Protection**: Optional password protection for sensitive files
+- ⚡ **Instant Sharing**: Generate shareable links in seconds
+- 🔥 **Burn After Read**: Files can self-destruct after first download
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Frontend**: React, TypeScript, Vite
+- **UI Components**: shadcn/ui, Tailwind CSS
+- **State Management**: React Query
+- **Routing**: React Router
+- **Backend**: Supabase (Database, Authentication, Storage)
+- **Deployment**: Vercel (or your preferred platform)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/3b15985c-2a4e-497b-a4fa-662683afd4c9) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js (v16 or higher)
+- npm or yarn
+- Supabase account
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/girishlade111/lade-fade.git
+   ```
 
-Follow these steps:
+2. Navigate to the project directory:
+   ```bash
+   cd lade-fade
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. Set up environment variables:
+   Create a `.env.local` file in the root directory with your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+5. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+6. Open your browser and visit `http://localhost:5173`
 
-**Edit a file directly in GitHub**
+## Deployment
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Build the project:
+   ```bash
+   npm run build
+   ```
 
-**Use GitHub Codespaces**
+2. Deploy to your preferred hosting platform (Vercel, Netlify, etc.)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Supabase Setup
 
-## What technologies are used for this project?
+1. Create a new Supabase project
+2. Set up the database tables using the provided SQL migrations in the `supabase/migrations` directory
+3. Configure Supabase Storage with an `uploads` bucket
+4. Set up authentication providers as needed
 
-This project is built with:
+## Contributing
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## How can I deploy this project?
+## License
 
-Simply open [Lovable](https://lovable.dev/projects/3b15985c-2a4e-497b-a4fa-662683afd4c9) and click on Share -> Publish.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Can I connect a custom domain to my Lovable project?
+## Acknowledgments
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- [shadcn/ui](https://ui.shadcn.com/) for the beautiful UI components
+- [Supabase](https://supabase.com/) for the backend infrastructure
+- [Vite](https://vitejs.dev/) for the fast development environment

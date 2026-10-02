@@ -88,3 +88,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [shadcn/ui](https://ui.shadcn.com/) for the beautiful UI components
 - [Supabase](https://supabase.com/) for the backend infrastructure
 - [Vite](https://vitejs.dev/) for the fast development environment
+
+## Author
+
+Built by Girish Lade — [ladestack.in](https://ladestack.in)
